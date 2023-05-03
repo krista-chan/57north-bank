@@ -9,6 +9,9 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+no-nfc-reader = []
+
 [dependencies]
 ansi_term = "0"
 serde = { version = "1", features = ["derive"] }
@@ -18,6 +21,8 @@ qrcode-generator = "4"
 rustyline = "11.0.0"
 radix_trie = "0.2.1"
 tokio = { version = "1.28.0", features = ["rt-multi-thread", "macros", "sync"] }
+
+[target.'cfg(not(feature = "no-nfc-reader"))'.dependencies]
 nfc1 = { version = "0.5.2" }
 
 [[bin]]

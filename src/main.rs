@@ -98,6 +98,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stop_reader = Arc::new(AtomicBool::new(false));
     let stop_clone = Arc::clone(&stop_reader);
 
+    #[cfg(not(feature = "no-nfc-reader"))]
     std::thread::spawn(move || {
         let mut context = nfc1::Context::new().unwrap();
         let mut device = context.open().unwrap();
@@ -214,7 +215,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         };
 
-        if !buffer.is_empty() {
+        if !buffer.trim().is_empty() {
             let mut args = buffer.split_whitespace();
             let command = args.next().unwrap();
             let args = args.collect::<Vec<_>>();
