@@ -10,9 +10,7 @@ use db::{User, Transaction};
 use nfc1::target_info;
 use rustyline::{error::ReadlineError, Editor};
 use std::{
-    future::Future,
     io::{Stdout, Write},
-    pin::Pin,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
@@ -574,10 +572,16 @@ fn deposit(db: &db::DB, args: &[&str]) {
 }
 
 fn users(db: &db::DB) {
-    println!("{}", Style::new().underline().paint("Users"));
-
     for user in match db.users() {
-        Ok(u) => u,
+        Ok(u) => {
+            if !u.is_empty() {
+                println!("{}", Style::new().underline().paint("Users"));
+            } else {
+                println!("{}", Style::new().underline().fg(Color::Red).paint("No users"));
+                return;
+            }
+            u
+        },
         Err(e) => {
             println!("Error, unable to list users: {}", e);
             return;
@@ -588,10 +592,16 @@ fn users(db: &db::DB) {
 }
 
 fn deposits(db: &db::DB) {
-    println!("{}", Style::new().underline().paint("Recent deposits"));
-
     for t in match db.transactions() {
-        Ok(u) => u,
+        Ok(u) => {
+            if !u.is_empty() {
+                println!("{}", Style::new().underline().paint("Recent deposits"));
+            } else {
+                println!("{}", Style::new().underline().fg(Color::Red).paint("No recent deposits"));
+                return;
+            }
+            u
+        },
         Err(e) => {
             println!("Error, unable to list transactions: {}", e);
             return;

@@ -1,11 +1,12 @@
 use crate::FORBIDDEN_USERS;
 
+use ansi_term::{Color, Style};
 use radix_trie::{Trie, TrieCommon};
 use rustyline::completion::Completer;
-use rustyline::Helper;
 use rustyline::highlight::Highlighter;
 use rustyline::hint::{Hint, Hinter};
 use rustyline::validate::Validator;
+use rustyline::Helper;
 
 #[derive(Debug)]
 pub struct Hintererer {
@@ -41,9 +42,12 @@ impl Completion {
         }
     }
 
-    fn suffix(&self, strip_chars: usize) -> Self {
+    fn suffix(&self, strip_chars: usize, paint: Color) -> Self {
         Self {
-            display: self.display[strip_chars..].to_owned(),
+            display: Style::new()
+                .fg(paint)
+                .paint(self.display[strip_chars..].to_owned())
+                .to_string(),
             rem_len: self.rem_len.saturating_sub(strip_chars),
         }
     }
@@ -79,7 +83,7 @@ impl Hinter for Hintererer {
         } else {
             self.commands.iter().find_map(|c| {
                 if c.0.starts_with(line) {
-                    Some(c.1.suffix(pos))
+                    Some(c.1.suffix(pos, Color::Fixed(238)))
                 } else {
                     None
                 }
@@ -96,7 +100,6 @@ impl Completer for Hintererer {
         _pos: usize,
         _ctx: &rustyline::Context<'_>,
     ) -> rustyline::Result<(usize, Vec<Self::Candidate>)> {
-        // let mut hints = Vec::new();
         let hints = self
             .commands
             .iter()
